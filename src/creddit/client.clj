@@ -5,6 +5,10 @@
             [slingshot.slingshot :refer [try+]]))
 
 
+(def json-mapper (json/object-mapper
+                  {:decode-key-fn true}))
+
+
 (defn- parse-response
   [response]
   (if-let [coll (or (get-in response [:data :children])
@@ -32,29 +36,31 @@
 (defn get-access-token
   [credentials]
   (try+
-    (-> (client/post "https://www.reddit.com/api/v1/access_token"
-                     {:basic-auth [(:user-client credentials) (:user-secret credentials)]
-                      :headers {"User-Agent" "creddit"}
-                      :form-params {:grant_type "client_credentials"
-                                    :device_id (str (java.util.UUID/randomUUID))}
-                      :content-type "application/x-www-form-urlencoded"
-                      :socket-timeout 10000
-                      :conn-timeout 10000
-                      :as :json})
-        (get :body))
-    (catch [:status 401] {}
-      (throw
-        (ex-info "Unauthorised, please check your credentials are correct."
-                 {:causes :unauthorised})))))
+   (-> (client/post "https://www.reddit.com/api/v1/access_token"
+                    {:basic-auth [(:user-client credentials) (:user-secret credentials)]
+                     :headers {"User-Agent" (or (:user-agent credentials) "creddit")}
+                     :form-params {:grant_type "client_credentials"
+                                   :device_id (str (java.util.UUID/randomUUID))}
+                     :content-type "application/x-www-form-urlencoded"
+                     :socket-timeout 10000
+                     :conn-timeout 10000
+                     :as :json})
+       (get :body)
+       (json/read-value json-mapper))
+   (catch [:status 401] {}
+     (throw
+      (ex-info "Unauthorised, please check your credentials are correct."
+               {:causes :unauthorised})))))
 
 (defn- http-get [credentials url]
   (-> (client/get url
                   {:basic-auth [(:access-token credentials)]
-                   :headers {"User-Agent" "creddit"}
+                   :headers {"User-Agent" (or (:user-agent credentials) "creddit")}
                    :socket-timeout 10000
                    :conn-timeout 10000
                    :as :json})
-      (get :body)))
+      (get :body)
+      (json/read-value json-mapper)))
 
 (defn frontpage
   [credentials limit time]
