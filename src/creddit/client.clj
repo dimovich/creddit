@@ -1,8 +1,9 @@
 (ns creddit.client
-  (:require [clj-http.client :as client]
+  (:require [looper.client :as client]
             [clojure.string :as string]
-            [cheshire.core :refer :all]
-            [slingshot.slingshot :refer :all]))
+            [jsonista.core :as json]
+            [slingshot.slingshot :refer [try+]]))
+
 
 (defn- parse-response
   [response]
