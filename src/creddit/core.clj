@@ -116,7 +116,9 @@
 (defn subreddit
   [credentials subreddit limit time]
   (if (and (valid-limit? limit) (valid-time? time))
-    (-> (http-get credentials (str "https://www.reddit.com/r/" subreddit "/.json?limit=" limit "&t=" (name time)))
+    (-> (http-get credentials (str "https://oauth.reddit.com/r/" subreddit)
+                  {:query-params {:limit limit
+                                  :t (name time)}})
         (parse-response))))
 
 (defn subreddit-controversial
@@ -128,23 +130,25 @@
 (defn subreddit-new
   [credentials subreddit limit time]
   (if (and (valid-limit? limit) (valid-time? time))
-    
-    (-> (http-get credentials (str "https://oauth.reddit.com/r/" subreddit "/new/")
-                  {:query-params {:t time
-                                  :limit limit}})
-        #_(http-get credentials (str "https://www.reddit.com/r/" subreddit "/new/.json?limit=" limit "&t=" (name time)))
+    (-> (http-get credentials (str "https://oauth.reddit.com/r/" subreddit "/new")
+                  {:query-params {:limit limit
+                                  :t (name time)}})
         (parse-response))))
 
 (defn subreddit-rising
   [credentials subreddit limit time]
   (if (and (valid-limit? limit) (valid-time? time))
-    (-> (http-get credentials (str "https://www.reddit.com/r/" subreddit "/rising/.json?limit=" limit "&t=" (name time)))
+    (-> (http-get credentials (str "https://oauth.reddit.com/r/" subreddit "/rising/")
+                  {:query-params {:limit limit
+                                  :t (name time)}})
         (parse-response))))
 
 (defn subreddit-top
   [credentials subreddit limit time]
   (if (and (valid-limit? limit) (valid-time? time))
-    (-> (http-get credentials (str "https://www.reddit.com/r/" subreddit "/top/.json?limit=" limit "&t=" (name time)))
+    (-> (http-get credentials (str "https://oauth.reddit.com/r/" subreddit "/top/")
+                  {:query-params {:limit limit
+                                  :t (name time)}})
         (parse-response))))
 
 (defn subreddit-comments
