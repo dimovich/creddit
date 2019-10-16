@@ -6,7 +6,7 @@
 
 
 (def json-mapper (json/object-mapper
-                  {:decode-key-fn true}))
+                  {:decode-key-fn #(keyword (.replace % "_" "-"))}))
 
 
 (defn- parse-response
@@ -271,7 +271,7 @@
 (defn api-recommend-subreddits [credentials srnames]
   (->> (http-get credentials (str "https://oauth.reddit.com/api/recommend/sr/"
                                   (apply str (interpose "," srnames))))
-       (map :sr_name)))
+       (map :sr-name)))
 
 
 
@@ -279,5 +279,5 @@
   [credentials]
   (let [response (get-access-token credentials)]
     (-> credentials
-        (assoc :access-token (:access_token response))
-        (assoc :expires-in (+ (System/currentTimeMillis) (:expires_in response))))))
+        (assoc :access-token (:access-token response))
+        (assoc :expires-in (+ (System/currentTimeMillis) (:expires-in response))))))
