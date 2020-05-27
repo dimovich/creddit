@@ -262,9 +262,10 @@
       (parse-response)))
 
 
-(defn api-search-subreddits [credentials query]
+(defn api-search-subreddits [credentials query & [opts]]
   (-> (http-post credentials "https://oauth.reddit.com/api/search_subreddits"
-                 {:form-params {:query query}})))
+                 (merge {:form-params {:query query}}
+                        opts))))
 
 
 
